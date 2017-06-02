@@ -45,9 +45,7 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   tutorial
-   intro
-   run
-   pipelines
+   start
+   tutorials
    ref
    contributing

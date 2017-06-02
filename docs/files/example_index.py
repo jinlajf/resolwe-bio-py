@@ -1,7 +1,7 @@
 import resdk
 
 # Create a Resolwe object to interact with the server
-res = resdk.Resolwe('admin', 'admin', 'https://torta.bcm.genialis.com')
+res = resdk.Resolwe('<USERNAME>', '<PASSWORD>', 'https://app.genialis.com')
 
 # Print command details to stdout
 resdk.start_logging()
