@@ -6,11 +6,7 @@ Getting started
 
 This tutorial is for bioinformaticians. It will help you install the SDK
 and showcase some basic commands. We will connect to a Resolwe server,
-upload a BAM file, and identify a chromosome with the most aligned
-reads. Before we begin, make sure you have SSH access to the
-`Torta server`_.
-
-.. _Torta server: https://torta.bcm.genialis.com
+do some basic queries, and align raw reads to a genome.
 
 Installation
 ============
@@ -61,19 +57,146 @@ to the Resolwe server:
 .. literalinclude:: files/example_index.py
    :lines: 1-7
 
-TODO:
+Before we start querying data on the server we should get familiar with what a data 
+object is. Everything that is uploaded or created (via processes) on a server is a 
+data object. It is a complete record of the processing. It remembers the inputs 
+(files, arguments, parameters...), the process (the algorithm) and the outputs 
+(files, images, numbers...). Let us now query all data objects on the server:
 
-* Explain what is data and how to get data from Genialis Platform
-  (copy the relevant text from the current Getting started).
-* Query a genome and a read data object.
-* Inspect both objects.
+.. code-block:: python
+
+	res.data.all()
+
+This is all data that is on the server and you have permission to see. As a new 
+user you are only able to see a small portion of all data objects. We can see the 
+data objects are referenced by their *id*, *slug* and *name*. Let's say we now want
+to find some genomes. *Id*, *slug* or *name* of a data objects rarely hold enough 
+information to do that. This is why we use `filters`_. We will limit our query to 
+only genome data objects:
+
+.. _filters: http://resdk.readthedocs.io/en/latest/ref.html#resdk.ResolweQuery
+
+.. code-block:: python
+
+	res.data.filter(type='data:genome')
+
+There are several data objects that fall through our filter. So we filter 
+data even more, this time trying to find a genome in a FASTA format:
+
+.. code-block:: python
+
+	res.data.filter(type='data:genome:fasta') 
+
+There are still multiple data objects so we add another filter. This time adding 
+a creation date field to the query:
+
+.. code-block:: python
+
+	res.data.filter(type='data:genome', created__date='2017-06-06') 
+
+We have now narrowed our search to one genome. We want to do something with
+this genome. We will `get`_ it and save it for later:
+
+.. _get: http://resdk.readthedocs.io/en/latest/ref.html#resdk.ResolweQuery.get 
+
+.. code-block:: python
+	
+	# Get data object by id
+	genome = res.data.get(1488) 
+
+or
+
+.. code-block:: python
+	
+	# Get data object by slug
+	genome = res.data.get('mm10_chr19fastagz') 
+
+We have seen how to use filters to find and get what we want. Let us now
+query and get a paired-end FASTQ data object:
+
+.. code-block:: python
+	
+	# All paired-end fastq objects
+	res.data.filter(type='data:reads:fastq:paired') 
+   
+	# Add date filter
+	res.data.filter(type='data:reads:fastq:paired', created__date='2017-06-06')
+
+	# Get the last data object by id
+	reads = res.data.get(1487) 
+
+We now have ``genome`` and ``reads`` data objects. We can continue by inspecting
+both of these objects to find out who created them:
+
+.. code-block:: python
+	
+	genome.contributor 
+
+	reads.contributor
+
+and the list of files they contain:
+
+.. code-block:: python
+	
+	genome.output 
+
+	reads.output 
 
 Run alignment
 =============
 
-TODO:
+Often the next step the bioinformatician will do is align raw reads to a genome. It will
+result in a ``bam`` alignment file, ``bai`` index, unmapped reads and stats file. This
+is done by running a certain *process*. A process uses an algorithm or a sequence of
+algorithms to turn given inputs into outputs. Here we will use HISAT2 alignment
+process, but many more processes are available (see `Process catalog`_). 
 
-* Explain what are processes (copy the relevant text from the current Getting started)
-* Run alignment (hisat2) on the reads and the genome we have queried in the previous step
-* Inspect the alignment results
-* List the other alignment methods and give a links to the reference section
+.. _Process catalog: http://resolwe-bio.readthedocs.io/en/latest/catalog.html
+
+So let us now run HISAT2 on our reads and using our genome:
+
+.. code-block:: python
+
+	# Run hisat2 and save data object to bam
+	bam = reads.run_hisat2(genome)
+
+This process may take some time. We can check the status of the process and if
+it has finished processing:
+
+.. code-block:: python
+
+	# Get the latest meta data from the server
+	bam.update()
+
+	# Print the status
+	bam.status
+
+Status ``OK`` indicates processing has finished successfuly. As soon as the
+proccessing is complete we can inspect our newly created data object:
+
+.. code-block:: python
+
+	bam
+
+As any other data object it has its own *id*, *slug* and *name*. We can see what are
+the process inputs and outputs:
+
+.. code-block:: python
+	
+	# Process inputs
+	bam.input
+
+	# Process outputs
+	bam.output
+
+and download outputs to our local disk:
+
+.. code-block:: python
+
+	bam.download()
+
+We have come to the end of Getting started. You now know some basic resdk concepts and 
+commands. But so far we have only scratched the surface. By continuing with the Tutorials,
+you will get familiar with more advanced concepts and options and will soon be able 
+to perform powerful analysis on your data (or data that is already on the server).
+
