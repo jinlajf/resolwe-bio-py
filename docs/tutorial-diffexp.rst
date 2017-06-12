@@ -103,6 +103,22 @@ and also if a selected sample is in any collection and in which ones:
 	The tutorial collection you have just created is for ReSDK training only and will be
 	removed from the server in a month. 
 
+In the first tutorial (Getting Started) we ran HISAT2 aligment process on one of our samples.
+Now we want to run HISAT2 process on all of our samples at once. Since they are now all in the
+same collection, this can be easily accomplished by running HISAT2 on the whole collection:
+
+.. code-block:: python
+
+	# Get genome data object for the alignment
+	genome = res.data.get(1488)
+
+	# Run hisat2 on a collection
+	collection.run_hisat2(genome)
+
+.. note::
+
+	Hisat2 can be run on different entities: data object, sample, collection, relation.
+
 Relations
 =========
 
@@ -133,13 +149,10 @@ You may decide to group samples differently and still continue with the totorial
 
 Scrolling down in the YAML file will bring you to the list of samples in the collection. These are
 the samples available for constructing relations. We will now show how to create a 'group' replicates
-relations:
+relations and a 'compare' case-control relation:
 
-MISSING: 2 pics
-
-and a 'compare' case-control relation:
-
-MISSING: 2 pics
+.. figure:: images/relations.jpg
+   :width: 40 %
 
 We have defined relations between samples. Save the file and apply the changes by importing:
 
@@ -147,10 +160,14 @@ We have defined relations between samples. Save the file and apply the changes b
 
 	collection.import_relations()
 
-We can check what we have created with:
+We can now check what we have created:
 
 .. code-block:: python
 
+	# Get the latest meta data from the server
+	collection.update()
+
+	# All relations in our collection
 	collection.relations
 
 We are now ready to run some expressions and differential expressions analysis.
@@ -191,11 +208,14 @@ We can now inpect *cuffnorm* results:
 
 .. code-block:: python
 
+	# Get the latest meta data from the server
+	collection.update()
+
 	# Query cuffnorm data object
 	collection.data.filter(type='data:expressionset:cuffnorm')
 
 	# Get cuffnorm data object
-	cuffnorm = collection.data.get()
+	cuffnorm = collection.data.get(<id of the selected data object>)
 
 	# Files available for download
 	cuffnorm.files()
@@ -216,23 +236,35 @@ relations we have imported earlier:
 
 .. code-block:: python
 
-	collection.run_cuffnorm(annotation)
+	collection.run_cuffdiff(annotation)
 
-Inspecting results is done in a similar manner as before with *cuffnorm*:
+Although we are working with small data objects, *cuffdiff* may take a couple of minutes to
+finish processing. We can check the status of the process:
 
 .. code-block:: python
+
+	# Get the latest meta data from the server
+	collection.update()
 
 	# Query cuffdiff data object
 	collection.data.filter(type='data:differentialexpression:cuffdiff')
 
 	# Get cuffdiff data object
-	cuffdiff = collection.data.get()
+	cuffdiff = collection.data.get(<id of the selected data object>)
+
+	# Check the status of the process
+	cuffdiff.update()
+	cuffdiff.status
+
+Inspecting results is done in a similar manner as before with *cuffnorm*:
+
+.. code-block:: python
 
 	# Files available for download
 	cuffdiff.files()
 
-	# Download the X file
-	cuffdiff.download('')
+	# Download all files to our working directory
+	cuffdiff.download()
 
 .. note::
 
@@ -247,7 +279,7 @@ and that was reads data object. We have since created many new data objects on o
 
 	sample.data
 
-We have come to the end of Differential expressions tutorial. You now know some powerful
-concepts (sample, collection and relation) and know how to run differential expressions
-on some samples that are already on the server. In the next tutorial we will learn how to
-work with your own data.
+We have come to the end of Differential expressions tutorial. You are now acquainted with some
+powerful concepts (sample, collection and relation) and know how to run differential expressions
+(and other processes) on samples that are already on the server. In the next tutorial we will
+learn how to work with your own data.

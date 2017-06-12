@@ -171,8 +171,8 @@ it has finished processing:
 	# Print the status
 	bam.status
 
-Status ``OK`` indicates processing has finished successfuly. As soon as the
-proccessing is complete we can inspect our newly created data object:
+Status ``OK`` indicates processing has finished successfuly. We can inspect our
+newly created data object:
 
 .. code-block:: python
 
