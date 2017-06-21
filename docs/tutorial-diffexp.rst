@@ -4,22 +4,20 @@
 Differential expressions
 ========================
 
-In this tutorial we will learn how to preform differential expressions. We will get familiar
-with concepts *sample* and *collection*. We will create a collection and add samples to that 
-collection. Then we will learn how to quantify bam files using *cuffdiff* and use the results
+In this tutorial we will learn how to preform differential expression analysis. We will become familiar
+with the concepts of *sample* and *collection*. We will create a collection and add samples to that 
+collection. Then we will learn how to quantify bam files using *cuffquant* and use the results
 to run *cuffnorm* expression and *cuffdiff* differential expression.
 
 Samples
 =======
 
-So far we have been intruduced to *process* and data concepts. Next in line is the `sample`_
-concept. Sample represents a biological entity. It is a sequence of data objects and typically
-contains raw reads, aligned reads and expressions. When a data object that represents a biological 
-sample is uploaded, a sample is automatically created. A data object can belong to only one sample.
+Thus far we have been intruduced to *process* and data concepts. Next up is the `sample`_
+concept. Sample represents a unique biological entity, such as a single tissue extraction processed for RNA-seq and run on an Illumina sequencer. A technical replicate of the same material would be a new Sample, as would a DNA-seq library from the same tissue extract. A Sample encompasses a lineage of data objects, and typically contains raw reads, aligned reads and expressions (or variants, peaks, etc). When a data object that represents a biological sample is uploaded (e.g. a fastq or BAM file), a sample is automatically created. A data object can belong to only one sample.
 
 .. _sample: http://resdk.readthedocs.io/en/latest/ref.html#resdk.resources.Sample
 
-Now let's see which samples are already on the server (and we have permission to see):
+Now let's see which samples are already on the server (and we have permission to view):
 
 .. code-block:: python
 
@@ -47,8 +45,8 @@ We can `get`_ one of the queried samples and inspect it:
 
 .. Note::
 
-	Samples, genome file (FASTA) and annotation file (GTF) used in this tutorial were obtained from `here`_.
-	Sample information can also be found with ReSDK (only if the sample is annotated):
+	Samples, genome file (FASTA) and annotation file (GTF) used in this tutorial were obtained `here`_.
+	Sample information can also be found with ReSDK (if the sample is annotated):
 
 	.. code-block:: python
 
@@ -56,19 +54,18 @@ We can `get`_ one of the queried samples and inspect it:
 	  
 	.. _here: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE71234
 
-	All files (i.e. all data objects) were later cropped to 19th mice cromosome which is the shortest of the
-	mice chromosomes. This was done so that the processes used in this tutorial finish quickly.
+	All files (i.e. all data objects) were later cropped to mouse chromosome 19, the shortest in that genome. 
+	Cropping was done so that the processes used in this tutorial finish quickly.
 
 Collections
 ===========
 
-These queried biological samples are all part of the same experiment. It would be great if we had
-a way to connect wanted samples together. Luckily we have a way and not just one but two. One is
-called a `collection`_. It is a working group of samples. It usually contains samples and their
-data but may also contain other data objects like analysis results (e.g., differential expressions)
-or data whose sample is not yet inside the collection. It is important to know that if a collection
-contains a sample it automatically contains it's data but not the other way around. It may contain
-data but not the sample to which this data belongs. 
+In most cases, a bunch of biological samples are part of the same experiment. It would be great if we had
+a way to bunch and operate on samples together. Actually, we have two ways to do this. This first is by creating an entity
+called a `collection`_. A collection is an ad hoc working group of samples. Typical collections contain samples and their
+data, and often also contain other data objects like analysis results (e.g., differential expressions)
+or data whose sample is not yet inside the collection. One important note: if a collection
+contains a sample, it automatically contains the associated sample data. However, if a collection contains a sample's associated data, it does not necessarily contain the sample itself.  
 
 .. _collection: http://resdk.readthedocs.io/en/latest/ref.html#resdk.resources.Collection
 
@@ -87,7 +84,7 @@ our new collection:
 
 	collection.add_samples(*samples)  
 
-All our samples are now added to the collection. We can see the list of samples in a collection
+All our samples are now added to the collection. We can see the list of samples in a collection,
 and also if a selected sample is in any collection and in which ones:
 
 .. code-block:: python
@@ -122,18 +119,17 @@ same collection, this can be easily accomplished by running HISAT2 on the whole 
 Relations
 =========
 
-We have mentioned that there are two ways of connecting samples and got familiar with the
-first one which is a collection. The second one is a `relation`_. It is exactly what its name
-implies — relation between samples. Its concept is a bit different to that of a collection.
-First difference is that a relation can only contain samples and cannot contain data. It
-is essentially a finer grouping of samples. There are three types of relations — 'compare',
+We mentioned that there are two ways of connecting samples. We are now familiar with the
+first one, collection. The second one is via `relation`_. A relation is just what the name
+implies — the affiliation between samples. For example, Sample 1 and Sample 2 may be related in that they are replicates. 
+The relation concept is a bit different to that of a collection. For starters, a relation can only contain samples and cannot contain additional data. It is essentially a finer grouping of samples. We define three types of relations — 'compare',
 'group' and 'series'. In this tutorial we will cover 'compare' (usually used for case-control or
 sample-background) and 'group' relations (usually used for replicates). 'Series' relations are
-usually used for time-series.        
+usually used for time- or dosage- series.        
 
 .. _relation: http://resdk.readthedocs.io/en/latest/ref.html#resdk.resources.Relation 
 
-The simplest way to create relations is to download a  relations template from a collection,
+The simplest way to create relations is to download a relations template from a collection,
 define relations and finally apply it to the server by importing it. We will now download the
 template (YAML file):
 
@@ -143,9 +139,9 @@ template (YAML file):
 
 The file has been downloaded to your working directory. When you open it in text editor you will
 see that creating sample relations is nicely explained. However we will go through creating 'group'
-replicates relations and 'compare' case-control relation. Following grouping of the samples is
-totally arbitrary and has no biological background. It is just a showcase of how to create relations.
-You may decide to group samples differently and still continue with the totorial.
+replicates relations and 'compare' case-control relations. In this case, the grouping of the samples is
+arbitrary and has no biological basis. It is just a showcase of how to create relations.
+You may decide to group samples differently and still continue with the tutorial.
 
 Scrolling down in the YAML file will bring you to the list of samples in the collection. These are
 the samples available for constructing relations. We will now show how to create a 'group' replicates
@@ -232,7 +228,7 @@ We can download any of these files. We will now download the boxplot file to our
 	It can also be run on a list samples, relations or collections.
 
 We will now run *cuffdiff* on our collection. It will automatically recognize all 'compare'
-relations we have imported earlier:
+relations we imported earlier:
 
 .. code-block:: python
 
