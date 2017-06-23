@@ -12,6 +12,13 @@ Unreleased
 Added
 -----
 * Add all parameters to bowtie2 helper function
+
+Changed
+-------
+* Rename function abbreviate_organism to gsize_organism and change its
+  values to actual values in chip_seq
+
+
 ==================
 1.8.3 - 2017-06-09
 ==================
