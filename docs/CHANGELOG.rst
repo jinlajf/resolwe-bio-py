@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 * Add all parameters to bowtie2 helper function
+* Add raise KeyError if sample is not annotated in macs helper function
 
 Changed
 -------
