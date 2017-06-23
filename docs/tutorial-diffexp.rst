@@ -12,7 +12,7 @@ to run *cuffnorm* expression and *cuffdiff* differential expression.
 Samples
 =======
 
-Thus far we have been intruduced to *process* and data concepts. Next up is the `sample`_
+Thus far we have been intruduced to *process* and *data* concepts. Next up is the `sample`_
 concept. Sample represents a unique biological entity, such as a single tissue extraction processed for RNA-seq and run on an Illumina sequencer. A technical replicate of the same material would be a new Sample, as would a DNA-seq library from the same tissue extract. A Sample encompasses a lineage of data objects, and typically contains raw reads, aligned reads and expressions (or variants, peaks, etc). When a data object that represents a biological sample is uploaded (e.g. a fastq or BAM file), a sample is automatically created. A data object can belong to only one sample.
 
 .. _sample: http://resdk.readthedocs.io/en/latest/ref.html#resdk.resources.Sample
@@ -147,7 +147,7 @@ Scrolling down in the YAML file will bring you to the list of samples in the col
 the samples available for constructing relations. We will now show how to create a 'group' replicates
 relations and a 'compare' case-control relation:
 
-.. figure:: images/relations.jpg
+.. figure:: images/defined-relations.jpg
    :width: 40 %
 
 We have defined relations between samples. Save the file and apply the changes by importing:
